@@ -1,12 +1,46 @@
-const API_KEY = "88dd43066e6a4f57990be34886ddf850";
-const API_URL = "https://newsapi.org/v2/top-headlines?";
 const newsContainer = document.getElementById("news-container");
 const searchBtn = document.getElementById("searchBtn");
 const search = document.getElementById("search");
 
-function fetchNews(sources = techCrunch) {}
-function displayNews() {}
+function fetchNews() {
+  try {
+    fetch("./news.json")
+      .then((res) => res.json())
+      .then((data) => {
+        displayNews(data.articles);
+      });
+  } catch (error) {}
+}
 
-searchBtn.addEventListener("click", () => {});
+function displayNews(data) {
+  newsContainer.innerHTML = "";
+
+  data.forEach((item) => {
+    const newsCard = document.createElement("div");
+    newsCard.classList.add("news-card");
+
+    newsCard.innerHTML = `
+        <h2>${item.title}</h2>
+        <p>${item.description || "No description available."}</p>
+        <a href="${item.url}" target="_blank">Read more</a>
+    `;
+
+    newsContainer.appendChild(newsCard);
+  });
+}
+
+searchBtn.addEventListener("click", () => {
+  const term = search.value.trim().toLowerCase();
+  fetch("news.json")
+    .then((response) => response.json())
+    .then((data) => {
+      const filteredNews = data.articles.filter(
+        (article) =>
+          article.title.toLowerCase().includes(term) ||
+          article.description.toLowerCase().includes(term)
+      );
+      displayNews(filteredNews);
+    });
+});
 
 fetchNews();
